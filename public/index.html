@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cloudflare Images Uploader</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .container {
+      border: 1px solid #ddd;
+      padding: 20px;
+      border-radius: 5px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    .btn {
+      background-color: #f6821f;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background-color: #e67e22;
+    }
+    .preview {
+      margin-top: 20px;
+      display: none;
+    }
+    .preview img {
+      max-width: 100%;
+      max-height: 300px;
+    }
+    .response {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background-color: #f9f9f9;
+      white-space: pre-wrap;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Cloudflare Images Uploader</h1>
+  
+  <div class="container">
+    <form id="uploadForm">
+      <div class="form-group">
+        <label for="image">Select Image:</label>
+        <input type="file" id="image" name="image" accept="image/*" required>
+      </div>
+      
+      <button type="submit" class="btn">Upload Image</button>
+    </form>
+    
+    <div class="preview" id="preview">
+      <h3>Preview:</h3>
+      <img id="previewImage" src="" alt="Preview">
+    </div>
+    
+    <div class="response" id="response">
+      <h3>Response:</h3>
+      <pre id="responseData"></pre>
+    </div>
+  </div>
+
+  <script>
+    const uploadForm = document.getElementById('uploadForm');
+    const imageInput = document.getElementById('image');
+    const preview = document.getElementById('preview');
+    const previewImage = document.getElementById('previewImage');
+    const response = document.getElementById('response');
+    const responseData = document.getElementById('responseData');
+
+    // Show image preview
+    imageInput.addEventListener('change', function() {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          previewImage.src = e.target.result;
+          preview.style.display = 'block';
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Handle form submit
+    uploadForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData();
+      const fileInput = document.getElementById('image');
+      
+      if (fileInput.files.length === 0) {
+        alert('Please select an image to upload');
+        return;
+      }
+      
+      formData.append('image', fileInput.files[0]);
+      
+      try {
+        const uploadResponse = await fetch('/api/images/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        const result = await uploadResponse.json();
+        
+        response.style.display = 'block';
+        responseData.textContent = JSON.stringify(result, null, 2);
+        
+        if (result.success) {
+          alert('Image uploaded successfully!');
+        } else {
+          alert('Error uploading image: ' + result.message);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error uploading image. See console for details.');
+      }
+    });
+  </script>
+</body>
+</html> 
