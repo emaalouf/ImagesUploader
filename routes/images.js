@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
 const FormData = require('form-data');
+const apiKeyAuth = require('../middleware/auth');
 
 // Configure multer for handling file uploads
 const storage = multer.diskStorage({
@@ -37,6 +38,9 @@ const upload = multer({
     cb(null, true);
   }
 });
+
+// Apply API key authentication to all routes
+router.use(apiKeyAuth);
 
 // Helper function to upload to Cloudflare Images
 async function uploadToCloudflare(filePath, fileName) {
