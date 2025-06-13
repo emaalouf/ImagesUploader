@@ -1,6 +1,8 @@
 /**
  * API key authentication middleware
  */
+const ApiKey = require('../models/ApiKey');
+const logger = require('../utils/logger');
 
 const apiKeyAuth = (req, res, next) => {
   // Get API key from request header
@@ -14,11 +16,13 @@ const apiKeyAuth = (req, res, next) => {
     });
   }
   
-  // Verify API key
-  if (apiKey !== process.env.API_KEY) {
+  // Validate API key with our key management system
+  if (!ApiKey.validate(apiKey)) {
+    logger.warn(`Authentication failed with API key: ${apiKey.substring(0, 8)}...`);
+    
     return res.status(403).json({ 
       success: false, 
-      message: 'Invalid API key' 
+      message: 'Invalid or expired API key' 
     });
   }
   

@@ -10,6 +10,12 @@ yarn-error.log
 # Temporary upload directory
 uploads/
 
+# Logs
+logs/
+
+# Data directory (contains API keys)
+data/
+
 # OS specific
 .DS_Store
 Thumbs.db 
